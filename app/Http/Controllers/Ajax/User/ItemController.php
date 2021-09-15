@@ -59,7 +59,20 @@ class ItemController extends Controller
      */
     public function show($id)
     {
-        //
+        $status = 200;
+        $message = null;
+
+        $data = null;
+        $item = Item::find($id);
+        if ($item) {
+            $data = $item;
+            $data['checkbox'] = explode(',', $data['checkbox']);
+        } else {
+            $status = 404;
+            $message = 'Not Found.';
+        }
+
+        return response()->json(['item' => $data, 'status' => $status, 'message' => $message]);
     }
 
     /**
@@ -80,9 +93,23 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ItemRequest $request, $id)
     {
-        //
+        $status = 200;
+        $message = null;
+        $result = false;
+
+        $data = $request->all();
+        $data['checkbox'] = implode(',', $data['checkbox']);
+        $item = Item::find($id);
+        if ($item) {
+            $result = $item->fill($data)->save();
+        } else {
+            $status = 404;
+            $message = 'Not Found.';
+        }
+
+        return response()->json(['result' => $result, 'status' => $status, 'message' => $message]);
     }
 
     /**
@@ -93,6 +120,13 @@ class ItemController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $status = 200;
+        $message = null;
+        $result = 1;
+        $item = Item::find($id);
+        if ($item) {
+            $result = $item->delete();
+        }
+        return response()->json(['result' => $result, 'status' => $status, 'message' => $message]);
     }
 }
