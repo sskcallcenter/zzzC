@@ -10,14 +10,13 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/test', function () {
-    return view('test');
-});
+Route::get('/user/{any?}', function () {
+    return view('user');
+})->where('any', '.*');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('/ajax/user/item', 'Ajax\User\ItemController');
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/const', 'ConstController');
