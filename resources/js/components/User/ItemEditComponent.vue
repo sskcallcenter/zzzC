@@ -185,9 +185,15 @@
           this.errors[key] = false;
           this.messages[key] = null;
         })
-        // 送信処理
-        axios.post('/ajax/user/item', this.forms)
-        .then((res) => {
+        let ajax;
+        if (this.forms.id) {
+          // 更新
+          ajax = axios.put('/ajax/user/item/' + this.forms.id, this.forms);
+        } else {
+          // 新規登録
+          ajax = axios.post('/ajax/user/item', this.forms);
+        }
+        ajax.then((res) => {
           let response = res.data;
           if (response.status == 400) {
             // バリデーションエラー

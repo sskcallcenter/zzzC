@@ -5,7 +5,7 @@ import UserDashboard from './components/User/DashboardComponent'
 import UserAccount from './components/User/AccountComponent'
 import UserAdmin from './components/User/AdminComponent'
 import UserItem from './components/User/ItemComponent'
-import UserItemAdd from './components/User/ItemEditComponent'
+import UserItemEdit from './components/User/ItemEditComponent'
 
 Vue.use(Router)
 

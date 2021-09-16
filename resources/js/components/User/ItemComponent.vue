@@ -17,7 +17,7 @@
       itemsPerPageOptions: [itemsPerPage],
       showFirstLastPage: true,
     }"
-    multi-sort
+
     class="elevation-1"
     @update:page = "getData"
   >
@@ -60,7 +60,7 @@
     data () {
       return {
         headers: [
-          { text: 'ID', value: 'id', align: 'start', sortable: true, },
+          { text: 'ID', value: 'id', align: 'start', sortable: false, },
           { text: 'Textbox', value: 'textbox', sortable: false, },
           { text: 'Actions', value: 'actions', align: 'end', sortable: false },
         ],

@@ -2268,10 +2268,145 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js&":
-/*!********************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js& ***!
-  \********************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemComponent.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemComponent.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      headers: [{
+        text: 'ID',
+        value: 'id',
+        align: 'start',
+        sortable: false
+      }, {
+        text: 'Textbox',
+        value: 'textbox',
+        sortable: false
+      }, {
+        text: 'Actions',
+        value: 'actions',
+        align: 'end',
+        sortable: false
+      }],
+      page: 1,
+      itemsPerPage: 10,
+      total: 0,
+      items: [],
+      deleteDialog: false,
+      // 追加：初期値は非表示
+      deleteID: null // 追加：削除Itemのid
+
+    };
+  },
+  created: function created() {
+    this.getData(this.page);
+  },
+  methods: {
+    getData: function getData(page) {
+      var _this = this;
+
+      axios.get('/ajax/user/item', {
+        params: {
+          page: parseInt(page)
+        }
+      }).then(function (res) {
+        var result = res.data.result;
+        _this.items = result.data;
+        _this.total = result.total;
+        _this.itemsPerPage = result.per_page;
+      })["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    deleteConfirm: function deleteConfirm(id) {
+      this.deleteDialog = true;
+      this.deleteID = id;
+    },
+    // 削除実行
+    deleteItem: function deleteItem(id) {
+      var _this2 = this;
+
+      axios["delete"]('/ajax/user/item/' + id).then(function (res) {
+        _this2.getData(_this2.page); // 成功したらページを再読み込み。
+
+      })["catch"](function (error) {
+        console.log(error);
+      });
+      this.deleteDialog = false; // 最後に削除確認ダイアログは閉じます。
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -2393,6 +2528,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2406,6 +2542,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       },
       forms: {
         // ③
+        id: '',
         textbox: '',
         textarea: '',
         radiobtn: '1',
@@ -2470,7 +2607,22 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       _this.constant.CHECKS = constData.CHECKS;
     })["catch"](function (error) {
       console.log(error); // エラー処理
-    });
+    }); // 以下追加
+
+    if (this.$route.params.id) {
+      this.forms.id = this.$route.params.id;
+      axios.get('/ajax/user/item/' + this.$route.params.id).then(function (res) {
+        if (res.data.status == 200) {
+          var item = res.data.item;
+          item.radiobtn = item.radiobtn.toString();
+          item.select = item.select.toString();
+          _this.forms = item;
+        } else {// エラー処理
+        }
+      })["catch"](function (error) {
+        console.log(error); // エラー処理
+      });
+    }
   },
   methods: {
     // 送信ボタンを押したとき
@@ -2481,9 +2633,18 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       Object.keys(this.errors).forEach(function (key) {
         _this2.errors[key] = false;
         _this2.messages[key] = null;
-      }); // 送信処理
+      });
+      var ajax;
 
-      axios.post('/ajax/user/item', this.forms).then(function (res) {
+      if (this.forms.id) {
+        // 更新
+        ajax = axios.put('/ajax/user/item/' + this.forms.id, this.forms);
+      } else {
+        // 新規登録
+        ajax = axios.post('/ajax/user/item', this.forms);
+      }
+
+      ajax.then(function (res) {
         var response = res.data;
 
         if (response.status == 400) {
@@ -2518,140 +2679,6 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     radioClear: function radioClear() {
       // ⑦
       this.forms.radiobtn = '';
-    }
-  }
-});
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemComponent.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemComponent.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-/* harmony default export */ __webpack_exports__["default"] = ({
-  data: function data() {
-    return {
-      headers: [{
-        text: 'ID',
-        value: 'id',
-        align: 'start',
-        sortable: true
-      }, {
-        text: 'Textbox',
-        value: 'textbox',
-        sortable: false
-      }, {
-        text: 'Actions',
-        value: 'actions',
-        align: 'end',
-        sortable: false
-      }],
-      page: 1,
-      itemsPerPage: 10,
-      total: 0,
-      items: [],
-      deleteDialog: false,
-      // 追加：初期値は非表示
-      deleteID: null // 追加：削除Itemのid
-
-    };
-  },
-  created: function created() {
-    this.getData(this.page);
-  },
-  methods: {
-    getData: function getData(page) {
-      var _this = this;
-
-      axios.get('/ajax/user/item', {
-        params: {
-          page: parseInt(page)
-        }
-      }).then(function (res) {
-        var result = res.data.result;
-        _this.items = result.data;
-        _this.total = result.total;
-        _this.itemsPerPage = result.per_page;
-      })["catch"](function (err) {
-        console.log(err);
-      });
-    },
-    deleteConfirm: function deleteConfirm(id) {
-      this.deleteDialog = true;
-      this.deleteID = id;
-    },
-    // 削除実行
-    deleteItem: function deleteItem(id) {
-      var _this2 = this;
-
-      axios["delete"]('/ajax/user/item/' + id).then(function (res) {
-        _this2.getData(_this2.page); // 成功したらページを再読み込み。
-
-      })["catch"](function (error) {
-        console.log(error);
-      });
-      this.deleteDialog = false; // 最後に削除確認ダイアログは閉じます。
     }
   }
 });
@@ -39226,10 +39253,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18&":
-/*!************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18& ***!
-  \************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemComponent.vue?vue&type=template&id=2d503e71&":
+/*!*********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemComponent.vue?vue&type=template&id=2d503e71& ***!
+  \*********************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -39244,7 +39271,175 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("h1", [_vm._v("UserItemAdd")]),
+      _c("h1", [_vm._v("UserItem")]),
+      _vm._v(" "),
+      _c(
+        "router-link",
+        { attrs: { to: "/user/item/edit" } },
+        [_c("v-btn", [_vm._v("新規登録")])],
+        1
+      ),
+      _vm._v(" "),
+      _c("v-data-table", {
+        staticClass: "elevation-1",
+        attrs: {
+          headers: _vm.headers,
+          items: _vm.items,
+          "items-per-page": _vm.itemsPerPage,
+          page: _vm.page,
+          "server-items-length": _vm.total,
+          "footer-props": {
+            itemsPerPageOptions: [_vm.itemsPerPage],
+            showFirstLastPage: true
+          }
+        },
+        on: {
+          "update:page": [
+            function($event) {
+              _vm.page = $event
+            },
+            _vm.getData
+          ]
+        },
+        scopedSlots: _vm._u(
+          [
+            {
+              key: "item.actions",
+              fn: function(ref) {
+                var item = ref.item
+                return [
+                  _c(
+                    "router-link",
+                    {
+                      attrs: {
+                        to: { name: "user-item-edit", params: { id: item.id } }
+                      }
+                    },
+                    [
+                      _c("v-icon", { staticClass: "mr-2" }, [
+                        _vm._v("\n          mdi-pencil\n        ")
+                      ])
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-icon",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.deleteConfirm(item.id)
+                        }
+                      }
+                    },
+                    [_vm._v("\n        mdi-delete\n      ")]
+                  )
+                ]
+              }
+            }
+          ],
+          null,
+          true
+        )
+      }),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { persistent: "", "max-width": "290" },
+          model: {
+            value: _vm.deleteDialog,
+            callback: function($$v) {
+              _vm.deleteDialog = $$v
+            },
+            expression: "deleteDialog"
+          }
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _c("v-card-title", { staticClass: "headline" }, [
+                _vm._v("削除確認")
+              ]),
+              _vm._v(" "),
+              _c("v-card-text", [
+                _vm._v(
+                  "ID:" + _vm._s(_vm.deleteID) + "を削除してもよろしいですか？"
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                [
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "green darken-1", text: "" },
+                      on: {
+                        click: function($event) {
+                          _vm.deleteDialog = false
+                        }
+                      }
+                    },
+                    [_vm._v("キャンセル")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "green darken-1", text: "" },
+                      on: {
+                        click: function($event) {
+                          return _vm.deleteItem(_vm.deleteID)
+                        }
+                      }
+                    },
+                    [_vm._v("削除")]
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2&":
+/*!*************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2& ***!
+  \*************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _vm.forms.id == ""
+        ? _c("h1", [_vm._v("UserItemAdd")])
+        : _c("h1", [_vm._v("UserItemEdit")]),
       _vm._v(" "),
       _c(
         "v-form",
@@ -39417,177 +39612,12 @@ var render = function() {
               attrs: { disabled: !_vm.valid, color: "success" },
               on: { click: _vm.submit }
             },
-            [_vm._v("\r\n      送信\r\n    ")]
+            [_vm._v("\n      送信\n    ")]
           ),
           _vm._v(" "),
           _c("v-btn", { on: { click: _vm.radioClear } }, [
-            _vm._v("\r\n      ラジオボタンクリア\r\n    ")
+            _vm._v("\n      ラジオボタンクリア\n    ")
           ])
-        ],
-        1
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemComponent.vue?vue&type=template&id=2d503e71&":
-/*!*********************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/User/ItemComponent.vue?vue&type=template&id=2d503e71& ***!
-  \*********************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c("h1", [_vm._v("UserItem")]),
-      _vm._v(" "),
-      _c(
-        "router-link",
-        { attrs: { to: "/user/item/add" } },
-        [_c("v-btn", [_vm._v("新規登録")])],
-        1
-      ),
-      _vm._v(" "),
-      _c("v-data-table", {
-        staticClass: "elevation-1",
-        attrs: {
-          headers: _vm.headers,
-          items: _vm.items,
-          "items-per-page": _vm.itemsPerPage,
-          page: _vm.page,
-          "server-items-length": _vm.total,
-          "footer-props": {
-            itemsPerPageOptions: [_vm.itemsPerPage],
-            showFirstLastPage: true
-          },
-          "multi-sort": ""
-        },
-        on: {
-          "update:page": [
-            function($event) {
-              _vm.page = $event
-            },
-            _vm.getData
-          ]
-        },
-        scopedSlots: _vm._u(
-          [
-            {
-              key: "item.actions",
-              fn: function(ref) {
-                var item = ref.item
-                return [
-                  _c(
-                    "v-icon",
-                    {
-                      staticClass: "mr-2",
-                      on: {
-                        click: function($event) {
-                          return _vm.editItem(item)
-                        }
-                      }
-                    },
-                    [_vm._v("\n        mdi-pencil\n      ")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-icon",
-                    {
-                      on: {
-                        click: function($event) {
-                          return _vm.deleteConfirm(item.id)
-                        }
-                      }
-                    },
-                    [_vm._v("\n        mdi-delete\n      ")]
-                  )
-                ]
-              }
-            }
-          ],
-          null,
-          true
-        )
-      }),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { persistent: "", "max-width": "290" },
-          model: {
-            value: _vm.deleteDialog,
-            callback: function($$v) {
-              _vm.deleteDialog = $$v
-            },
-            expression: "deleteDialog"
-          }
-        },
-        [
-          _c(
-            "v-card",
-            [
-              _c("v-card-title", { staticClass: "headline" }, [
-                _vm._v("削除確認")
-              ]),
-              _vm._v(" "),
-              _c("v-card-text", [
-                _vm._v(
-                  "ID:" + _vm._s(_vm.deleteID) + "を削除してもよろしいですか？"
-                )
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                [
-                  _c("v-spacer"),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "green darken-1", text: "" },
-                      on: {
-                        click: function($event) {
-                          _vm.deleteDialog = false
-                        }
-                      }
-                    },
-                    [_vm._v("キャンセル")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "green darken-1", text: "" },
-                      on: {
-                        click: function($event) {
-                          return _vm.deleteItem(_vm.deleteID)
-                        }
-                      }
-                    },
-                    [_vm._v("削除")]
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
         ],
         1
       )
@@ -100838,75 +100868,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/User/ItemAddComponent.vue":
-/*!***********************************************************!*\
-  !*** ./resources/js/components/User/ItemAddComponent.vue ***!
-  \***********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ItemAddComponent.vue?vue&type=template&id=0e980b18& */ "./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18&");
-/* harmony import */ var _ItemAddComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ItemAddComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _ItemAddComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/js/components/User/ItemAddComponent.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js&":
-/*!************************************************************************************!*\
-  !*** ./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js& ***!
-  \************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemAddComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./ItemAddComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemAddComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemAddComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18&":
-/*!******************************************************************************************!*\
-  !*** ./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18& ***!
-  \******************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ItemAddComponent.vue?vue&type=template&id=0e980b18& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemAddComponent.vue?vue&type=template&id=0e980b18&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemAddComponent_vue_vue_type_template_id_0e980b18___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
 /***/ "./resources/js/components/User/ItemComponent.vue":
 /*!********************************************************!*\
   !*** ./resources/js/components/User/ItemComponent.vue ***!
@@ -100976,6 +100937,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/User/ItemEditComponent.vue":
+/*!************************************************************!*\
+  !*** ./resources/js/components/User/ItemEditComponent.vue ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ItemEditComponent.vue?vue&type=template&id=ba4adaf2& */ "./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2&");
+/* harmony import */ var _ItemEditComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ItemEditComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _ItemEditComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/User/ItemEditComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************!*\
+  !*** ./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemEditComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./ItemEditComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemEditComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemEditComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2&":
+/*!*******************************************************************************************!*\
+  !*** ./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2& ***!
+  \*******************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ItemEditComponent.vue?vue&type=template&id=ba4adaf2& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/User/ItemEditComponent.vue?vue&type=template&id=ba4adaf2&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ItemEditComponent_vue_vue_type_template_id_ba4adaf2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/router.js":
 /*!********************************!*\
   !*** ./resources/js/router.js ***!
@@ -100992,7 +101022,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_User_AccountComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/User/AccountComponent */ "./resources/js/components/User/AccountComponent.vue");
 /* harmony import */ var _components_User_AdminComponent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/User/AdminComponent */ "./resources/js/components/User/AdminComponent.vue");
 /* harmony import */ var _components_User_ItemComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/User/ItemComponent */ "./resources/js/components/User/ItemComponent.vue");
-/* harmony import */ var _components_User_ItemAddComponent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/User/ItemAddComponent */ "./resources/js/components/User/ItemAddComponent.vue");
+/* harmony import */ var _components_User_ItemEditComponent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/User/ItemEditComponent */ "./resources/js/components/User/ItemEditComponent.vue");
 
 
 
@@ -101023,9 +101053,9 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     name: 'user-item',
     component: _components_User_ItemComponent__WEBPACK_IMPORTED_MODULE_5__["default"]
   }, {
-    path: '/user/item/add',
-    name: 'user-item-add',
-    component: _components_User_ItemAddComponent__WEBPACK_IMPORTED_MODULE_6__["default"]
+    path: '/user/item/edit/:id(\\d+)?',
+    name: 'user-item-edit',
+    component: _components_User_ItemEditComponent__WEBPACK_IMPORTED_MODULE_6__["default"]
   }]
 }));
 
