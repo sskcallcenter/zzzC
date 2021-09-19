@@ -4,7 +4,7 @@
   <!-- Bars/App bars の v-app-bar -->
   <v-app-bar color="primary" dark app clipped-left>
     <v-app-bar-nav-icon @click="drawer=!drawer"></v-app-bar-nav-icon>
-    <v-toolbar-title>SSS</v-toolbar-title>
+    <v-toolbar-title>SSSS</v-toolbar-title>
   </v-app-bar>
 
   <!-- 色付きドロワー -->
