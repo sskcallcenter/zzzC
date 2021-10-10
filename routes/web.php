@@ -10,8 +10,12 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/user/{any?}', function () {
-    return view('user');
+// Route::get('/user/{any?}', function () {
+//     return view('user');
+// })->where('any', '.*');
+
+Route::get('/list/{any?}', function () {
+    return view('list');
 })->where('any', '.*');
 
 Route::resource('/ajax/user/item', 'Ajax\User\ItemController');
